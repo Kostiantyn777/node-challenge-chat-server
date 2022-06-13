@@ -2,7 +2,12 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
+
+//Added this line of code if the request has come from an HTML form
 app.use(express.urlencoded({ extended: false }));
+
+//Added this line of code if the request has come from Postman
+app.use(express.json())
 
 app.use(cors());
 
@@ -34,10 +39,18 @@ app.post("/messages", function (request, response) {
   const requestBody = request.body;
   const { from, text } = requestBody;
   let createNewObj = { from, text };
-  messageIDFromDatabase += 1;
-  createNewObj.id = messageIDFromDatabase;
-  messages.push(createNewObj);
-  response.status(201).send();
+
+  if (from === "" || text === "") {
+    response.status(400).send(`Message was not CREATED`);
+    return;
+  } else {
+    messageIDFromDatabase += 1;
+    createNewObj.id = messageIDFromDatabase;
+
+    messages.push(createNewObj);
+
+    response.status(201).send(createNewObj);
+  }
 });
 
 ///Read one message specified by an ID
